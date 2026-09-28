@@ -2,6 +2,8 @@
 
 ZJU Teacher Rating Helper 是一个 Chrome/Edge Manifest V3 浏览器扩展，帮助浙江大学学生在选课页面直接查看查老师网站的教师评价，无需复制姓名、打开网站、粘贴搜索。
 
+当前版本 0.2.0（Manifest V3），需要 Chrome 88+ 或 Edge 88+（Chromium 88 及以上内核）；不支持 Firefox。作者：liupilot，项目主页：https://github.com/liupilot/zju-teacher-rating-helper
+
 ## 功能
 
 - 自动识别课程教学班表格中的教师姓名

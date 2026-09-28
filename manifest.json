@@ -4,6 +4,8 @@
   "short_name": "ZJU Teacher Helper",
   "version": "0.2.0",
   "description": "在浙江大学选课系统中帮助快速查看教师评价。",
+  "author": "liupilot",
+  "homepage_url": "https://github.com/liupilot/zju-teacher-rating-helper",
   "permissions": [
     "storage"
   ],
