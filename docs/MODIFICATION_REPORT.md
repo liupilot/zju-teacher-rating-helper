@@ -9,14 +9,14 @@
 
 ## 总体说明
 
-本报告基于 `REVIEW_AND_SUGGESTIONS.md` 提出的五个问题，并补充一个项目内新发现的 DOM 重建问题，逐项核对当前代码的实际实现，整理六个问题的修改结果。六个问题均已修复，涉及以下文件（当前代码位于 `zju-teacher-rating-helper2.0/` 目录，修复分别于 2026-08-25 与 2026-08-28 落地）：
+本报告基于 `REVIEW_AND_SUGGESTIONS.md` 提出的五个问题，并补充一个项目内新发现的 DOM 重建问题，逐项核对当前代码的实际实现，整理六个问题的修改结果。六个问题均已修复，涉及以下文件（当前代码位于 `zju-teacher-rating-helper/` 目录，修复分别于 2026-08-25 与 2026-08-28 落地）：
 
-- `zju-teacher-rating-helper2.0/content/rating-display.js`
-- `zju-teacher-rating-helper2.0/background/teacher-service.js`
-- `zju-teacher-rating-helper2.0/background/service-worker.js`
-- `zju-teacher-rating-helper2.0/content/content.js`
-- `zju-teacher-rating-helper2.0/content/teacher-detector.js`
-- `zju-teacher-rating-helper2.0/content/query-button.js`
+- `zju-teacher-rating-helper/content/rating-display.js`
+- `zju-teacher-rating-helper/background/teacher-service.js`
+- `zju-teacher-rating-helper/background/service-worker.js`
+- `zju-teacher-rating-helper/content/content.js`
+- `zju-teacher-rating-helper/content/teacher-detector.js`
+- `zju-teacher-rating-helper/content/query-button.js`
 
 与审查建议相比：问题 1 与问题 5 的实现与建议方案存在实质差异；问题 2、3 与建议方案一致；问题 4 思路一致但实现更完善；问题 6 不在审查文档范围内，以“方案说明（优势与劣势）”记录实际实现。每个问题章节包含问题现象、原修改建议、实际修改与方案对比（问题 6 为方案说明），列出实际方案与建议方案各自的优势与劣势。
 
@@ -46,9 +46,9 @@
 
 ### 实际修改
 
-`zju-teacher-rating-helper2.0/content/rating-display.js` 改为队列式滑动限流：`MAX_CONCURRENT_QUERIES = 5` 控制同时进行的查询数，`runLimited` 负责入队，`drainPendingQueries` 在任务完成或失败后立即补位，`refreshNames` 只负责入队与收尾。
+`zju-teacher-rating-helper/content/rating-display.js` 改为队列式滑动限流：`MAX_CONCURRENT_QUERIES = 5` 控制同时进行的查询数，`runLimited` 负责入队，`drainPendingQueries` 在任务完成或失败后立即补位，`refreshNames` 只负责入队与收尾。
 
-位置：`zju-teacher-rating-helper2.0/content/rating-display.js`，第 6 行（`MAX_CONCURRENT_QUERIES`）、第 53-82 行（`runLimited` / `drainPendingQueries`）、第 97-106 行（`refreshNames` 使用）。
+位置：`zju-teacher-rating-helper/content/rating-display.js`，第 6 行（`MAX_CONCURRENT_QUERIES`）、第 53-82 行（`runLimited` / `drainPendingQueries`）、第 97-106 行（`refreshNames` 使用）。
 
 ```javascript
 const MAX_CONCURRENT_QUERIES = 5;
@@ -117,9 +117,9 @@ await Promise.all(
 
 ### 实际修改
 
-`zju-teacher-rating-helper2.0/background/teacher-service.js` 新增 `collegeCommentsCache` 与 `collegeCommentsPromiseCache` 两个 Map：命中结果缓存直接返回；未命中时复用进行中 Promise；成功后写入结果缓存，失败时删除进行中缓存以便重试。
+`zju-teacher-rating-helper/background/teacher-service.js` 新增 `collegeCommentsCache` 与 `collegeCommentsPromiseCache` 两个 Map：命中结果缓存直接返回；未命中时复用进行中 Promise；成功后写入结果缓存，失败时删除进行中缓存以便重试。
 
-位置：`zju-teacher-rating-helper2.0/background/teacher-service.js`，第 35-36 行（缓存声明）、第 151-182 行（`loadCollegeComments`）。
+位置：`zju-teacher-rating-helper/background/teacher-service.js`，第 35-36 行（缓存声明）、第 151-182 行（`loadCollegeComments`）。
 
 ```javascript
 const collegeCommentsCache = new Map();
@@ -177,9 +177,9 @@ async function loadCollegeComments(college) {
 
 ### 实际修改
 
-`zju-teacher-rating-helper2.0/content/rating-display.js` 的 `getQueryPromise` 在 catch 中执行 `queries.delete(name)`，失败结果返回后条目即被移除，下次刷新会重新发起查询。
+`zju-teacher-rating-helper/content/rating-display.js` 的 `getQueryPromise` 在 catch 中执行 `queries.delete(name)`，失败结果返回后条目即被移除，下次刷新会重新发起查询。
 
-位置：`zju-teacher-rating-helper2.0/content/rating-display.js`，第 26-51 行（`getQueryPromise`）。
+位置：`zju-teacher-rating-helper/content/rating-display.js`，第 26-51 行（`getQueryPromise`）。
 
 ```javascript
 const promise = getClient()
@@ -213,9 +213,9 @@ Service Worker 先查缓存、未命中再查网络；缓存写入完成前，�
 
 ### 实际修改
 
-`zju-teacher-rating-helper2.0/background/service-worker.js` 新增 `pendingRequests` Map，用 `ZJUTeacherCache.cacheKey(name, college, includeReviews)` 生成与缓存层一致的键；`getOrStartPendingQuery` 复用进行中请求，并在 `finally` 中清理；整个查询流程外层套 20 秒超时。
+`zju-teacher-rating-helper/background/service-worker.js` 新增 `pendingRequests` Map，用 `ZJUTeacherCache.cacheKey(name, college, includeReviews)` 生成与缓存层一致的键；`getOrStartPendingQuery` 复用进行中请求，并在 `finally` 中清理；整个查询流程外层套 20 秒超时。
 
-位置：`zju-teacher-rating-helper2.0/background/service-worker.js`，第 6 行（`pendingRequests`）、第 20-24 行（`requestKey`）、第 55-82 行（`getOrStartPendingQuery`）。
+位置：`zju-teacher-rating-helper/background/service-worker.js`，第 6 行（`pendingRequests`）、第 20-24 行（`requestKey`）、第 55-82 行（`getOrStartPendingQuery`）。
 
 ```javascript
 const pendingRequests = new Map();
@@ -269,9 +269,9 @@ function getOrStartPendingQuery(requestKey, name, college, includeReviews) {
 
 ### 实际修改
 
-`zju-teacher-rating-helper2.0/content/rating-display.js` 将 `queries` 改为带 LRU 语义的有界缓存：命中时删除并重新插入以刷新位置；插入后超过 `MAX_QUERY_CACHE_SIZE = 200` 时淘汰最久未用键。
+`zju-teacher-rating-helper/content/rating-display.js` 将 `queries` 改为带 LRU 语义的有界缓存：命中时删除并重新插入以刷新位置；插入后超过 `MAX_QUERY_CACHE_SIZE = 200` 时淘汰最久未用键。
 
-位置：`zju-teacher-rating-helper2.0/content/rating-display.js`，第 7 行（`MAX_QUERY_CACHE_SIZE`）、第 27-31 行（命中刷新）、第 46-48 行（淘汰）。
+位置：`zju-teacher-rating-helper/content/rating-display.js`，第 7 行（`MAX_QUERY_CACHE_SIZE`）、第 27-31 行（命中刷新）、第 46-48 行（淘汰）。
 
 ```javascript
 if (queries.has(name)) {
@@ -305,9 +305,9 @@ if (queries.size > MAX_QUERY_CACHE_SIZE) {
 
 ### 实际修改
 
-`zju-teacher-rating-helper2.0/content/content.js` 增加“根节点看门狗”：`ensureObserverAttached` 每秒检查一次 `document.documentElement` 是否仍是 `observedRoot`；若根节点已被替换，先 `disconnect()` 旧观察器，再对新根重新 `observe()`，并主动触发一次教师扫描，恢复教师识别与按钮注入。
+`zju-teacher-rating-helper/content/content.js` 增加“根节点看门狗”：`ensureObserverAttached` 每秒检查一次 `document.documentElement` 是否仍是 `observedRoot`；若根节点已被替换，先 `disconnect()` 旧观察器，再对新根重新 `observe()`，并主动触发一次教师扫描，恢复教师识别与按钮注入。
 
-位置：`zju-teacher-rating-helper2.0/content/content.js`，第 13 行（`WATCHDOG_INTERVAL_MS`）、第 189-200 行（`attachObserver`）、第 202-216 行（`ensureObserverAttached`）、第 218-222 行（`startDomObserver`）。
+位置：`zju-teacher-rating-helper/content/content.js`，第 13 行（`WATCHDOG_INTERVAL_MS`）、第 189-200 行（`attachObserver`）、第 202-216 行（`ensureObserverAttached`）、第 218-222 行（`startDomObserver`）。
 
 ```javascript
 function ensureObserverAttached() {
@@ -345,9 +345,9 @@ function ensureObserverAttached() {
 
 | 问题 | 优先级 | 修改文件 | 修复状态 | 与建议方案一致性 |
 |------|:------:|----------|:--------:|:----------------:|
-| 并发控制缺失导致卡顿 | 高 | `zju-teacher-rating-helper2.0/content/rating-display.js` | 已修复 | 有差异（队列式滑动限流） |
-| 同一学院评论 CSV 被反复拉取 | 高 | `zju-teacher-rating-helper2.0/background/teacher-service.js` | 已修复 | 一致 |
-| 查询失败后永久无法重试 | 中 | `zju-teacher-rating-helper2.0/content/rating-display.js` | 已修复 | 一致 |
-| 背景层缓存雪崩 | 低 | `zju-teacher-rating-helper2.0/background/service-worker.js` | 已修复 | 思路一致，实现更完善 |
-| queries Map 只增不减 | 低 | `zju-teacher-rating-helper2.0/content/rating-display.js` | 已修复 | 有差异（LRU 上限 200） |
-| 内容区重建导致 MutationObserver 失效 | 高 | `zju-teacher-rating-helper2.0/content/` 下三个内容脚本 | 已修复 | 不适用（新增问题，方案说明） |
+| 并发控制缺失导致卡顿 | 高 | `zju-teacher-rating-helper/content/rating-display.js` | 已修复 | 有差异（队列式滑动限流） |
+| 同一学院评论 CSV 被反复拉取 | 高 | `zju-teacher-rating-helper/background/teacher-service.js` | 已修复 | 一致 |
+| 查询失败后永久无法重试 | 中 | `zju-teacher-rating-helper/content/rating-display.js` | 已修复 | 一致 |
+| 背景层缓存雪崩 | 低 | `zju-teacher-rating-helper/background/service-worker.js` | 已修复 | 思路一致，实现更完善 |
+| queries Map 只增不减 | 低 | `zju-teacher-rating-helper/content/rating-display.js` | 已修复 | 有差异（LRU 上限 200） |
+| 内容区重建导致 MutationObserver 失效 | 高 | `zju-teacher-rating-helper/content/` 下三个内容脚本 | 已修复 | 不适用（新增问题，方案说明） |
