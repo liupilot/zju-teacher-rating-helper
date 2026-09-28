@@ -1,0 +1,13 @@
+# 系统与编辑器垃圾
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# 打包产物与日志
+*.zip
+*.crx
+*.pem
+*.log
+node_modules/

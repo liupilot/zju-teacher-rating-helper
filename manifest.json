@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "浙江大学选课老师评价助手",
+  "short_name": "ZJU Teacher Helper",
+  "version": "0.2.0",
+  "description": "在浙江大学选课系统中帮助快速查看教师评价。",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://chalaoshi.netlify.app/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://zdbk.zju.edu.cn/*"
+      ],
+      "css": [
+        "content/teacher-helper.css"
+      ],
+      "all_frames": true,
+      "js": [
+        "content/teacher-detector.js",
+        "content/query-button.js",
+        "content/teacher-service-client.js",
+        "content/rating-display.js",
+        "content/keyword-analyzer.js",
+        "content/review-modal.js",
+        "content/content.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://chalaoshi.netlify.app/*"
+      ],
+      "js": [
+        "content/chalaoshi-search.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}

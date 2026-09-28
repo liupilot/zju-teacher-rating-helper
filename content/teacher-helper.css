@@ -1,0 +1,57 @@
+.zju-teacher-helper-query-button {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border: 1px solid #d8a93e;
+  border-radius: 4px;
+  background: #fffaf0;
+  color: #7a5200;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.5;
+  white-space: nowrap;
+  min-width: 68px;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+}
+
+.zju-teacher-helper-query-button:hover,
+.zju-teacher-helper-query-button:focus-visible {
+  background: #ffe9b8;
+  border-color: #b9861f;
+  outline: 2px solid rgba(184, 134, 31, 0.35);
+  outline-offset: 1px;
+}
+
+.zju-teacher-helper-query-loading {
+  background: #f4f5f7;
+  border-color: #b9bec6;
+  color: #5b6470;
+  cursor: progress;
+}
+
+.zju-teacher-helper-query-found {
+  background: #eefaf1;
+  border-color: #4c9e68;
+  color: #1f6b3d;
+}
+
+.zju-teacher-helper-query-ambiguous {
+  background: #fff7e0;
+  border-color: #d8a93e;
+  color: #8a5a00;
+}
+
+.zju-teacher-helper-query-not-found {
+  background: #f2f2f2;
+  border-color: #b9bec6;
+  color: #5b6470;
+}
+
+.zju-teacher-helper-query-error {
+  background: #fdecec;
+  border-color: #d96a6a;
+  color: #8f2f2f;
+}
